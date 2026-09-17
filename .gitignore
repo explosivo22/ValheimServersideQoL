@@ -5,3 +5,5 @@
 *.DotSettings.user
 /plugins
 /Dependencies/**
+.github/docs
+CLAUDE.md
