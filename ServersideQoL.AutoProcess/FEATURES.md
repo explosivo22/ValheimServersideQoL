@@ -1,2 +1,3 @@
 - Automatically feeds processing stations such as smelters, kilns, windmills, etc. from nearby containers
 - Automatically feeds shield generators from nearby containers
+- Optionally feeds ovens and fire sources (fire pits, hearths, braziers, torches, etc.) with fuel from nearby containers
