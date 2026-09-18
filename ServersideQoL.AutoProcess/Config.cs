@@ -11,6 +11,10 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     "Enables/disables the entire mod");
   public ConfigEntry<bool> FeedFromContainers { get; } = BindEx(cfg, true,
     "True to automatically feed smelters from nearby containers");
+  public ConfigEntry<bool> FeedOvens { get; } = BindEx(cfg, false,
+    "True to automatically feed ovens and other fuel-burning cooking stations from nearby containers. Requires FeedFromContainers");
+  public ConfigEntry<bool> FeedFireSources { get; } = BindEx(cfg, false,
+    "True to automatically feed fire sources (fire pits, hearths, braziers, torches, etc.) from nearby containers. Requires FeedFromContainers");
   public ConfigEntry<float> FeedFromContainersRange { get; } = BindEx(cfg, 4f, $"""
     Required proximity of a container to a smelter to be used as feeding source.
     Can be overridden per chest by putting '{ContainerAndSignProcessor.FeedRangeEmoji}<Range>' on a chest sign, e.g. '{ContainerAndSignProcessor.FeedRangeEmoji}64'.
