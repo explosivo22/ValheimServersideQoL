@@ -17,6 +17,7 @@ public sealed class SmelterProcessor : Processor<SmelterProcessor.PrefabInfo>
 
   SectorDictionary<HashSet<ServersideQoLZDO>>? _smelters;
   SectorDictionary<SharedItemDataKey, HashSet<ServersideQoLZDO>>? _containersByItemName;
+  readonly HashSet<string> _excludedOre = new(StringComparer.OrdinalIgnoreCase);
 
   protected override void Initialize()
   {
@@ -31,6 +32,17 @@ public sealed class SmelterProcessor : Processor<SmelterProcessor.PrefabInfo>
     {
       _smelters = null;
       _containersByItemName = null;
+    }
+
+    Config.Instance.FeedFromContainersExcludeOre.SettingChanged -= UpdateExcludedOre;
+    UpdateExcludedOre(null, null);
+    Config.Instance.FeedFromContainersExcludeOre.SettingChanged += UpdateExcludedOre;
+
+    void UpdateExcludedOre(object? sender, EventArgs? args)
+    {
+      _excludedOre.Clear();
+      foreach (var name in Config.Instance.FeedFromContainersExcludeOre.Value.Items)
+        _excludedOre.Add(name.Trim());
     }
   }
 
@@ -210,6 +222,9 @@ public sealed class SmelterProcessor : Processor<SmelterProcessor.PrefabInfo>
       {
         foreach (var conversion in prefabInfo.Smelter.m_conversion)
         {
+          if (_excludedOre.Contains(conversion.m_from.gameObject.name))
+            continue;
+
           var oreItem = conversion.m_from.m_itemData;
           var addedOre = 0;
           foreach (var containers in _containersByItemName.EnumerateAdjacent((zdo.ZDO.GetPosition(), oreItem.m_shared)))
