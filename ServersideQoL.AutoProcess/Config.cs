@@ -27,6 +27,11 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     "Minimum amount of fuel to leave in a container");
   public ConfigEntry<int> FeedFromContainersLeaveAtLeastOre { get; } = BindEx(cfg, 1,
     "Minimum amount of ore to leave in a container");
+  public ConfigEntry<ConfigArray<string>> FeedFromContainersExcludeOre { get; } = BindEx(cfg, ConfigArray<string>.Empty, """
+    Names of ore items (prefab names, e.g. FineWood) which will not be fed to smelters from containers.
+    Only affects automatic feeding, players can still add these items by hand.
+    Multiple items can be excluded by separating them with , (e.g. FineWood, RoundLog)
+    """);
   public ConfigEntry<MessageTypes> OreOrFuelAddedMessageType { get; } = BindEx(cfg, MessageTypes.None,
     "Type of message to show when ore or fuel is added to a smelter", AcceptableEnum<MessageTypes>.Default);
   public ConfigEntry<float> CapacityMultiplier { get; } = BindEx(cfg, 1f,
