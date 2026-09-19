@@ -9,5 +9,6 @@ partial class AutoProcessPlugin : ServersideQoLPluginBase<AutoProcessPlugin, Con
 
   protected override void RegisterProcessors(IProcessorCollection processors) => processors
     .Add<SmelterProcessor>()
-    .Add<FuelConsumerProcessor>();
+    .Add<FuelConsumerProcessor>()
+    .Add<FermenterProcessor>();
 }

@@ -15,6 +15,10 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     "True to automatically feed ovens and other fuel-burning cooking stations from nearby containers. Requires FeedFromContainers");
   public ConfigEntry<bool> FeedFireSources { get; } = BindEx(cfg, false,
     "True to automatically feed fire sources (fire pits, hearths, braziers, torches, etc.) from nearby containers. Requires FeedFromContainers");
+  public ConfigEntry<bool> FeedFermenters { get; } = BindEx(cfg, false,
+    "True to automatically add fermentable items (e.g. mead bases) to empty fermenters from nearby containers. Requires FeedFromContainers");
+  public ConfigEntry<bool> ExtractFermenters { get; } = BindEx(cfg, false,
+    "True to automatically move finished products (e.g. mead) from fermenters into nearby containers. Requires FeedFromContainers");
   public ConfigEntry<float> FeedFromContainersRange { get; } = BindEx(cfg, 4f, $"""
     Required proximity of a container to a smelter to be used as feeding source.
     Can be overridden per chest by putting '{ContainerAndSignProcessor.FeedRangeEmoji}<Range>' on a chest sign, e.g. '{ContainerAndSignProcessor.FeedRangeEmoji}64'.
@@ -31,6 +35,8 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     "Minimum amount of fuel to leave in a container");
   public ConfigEntry<int> FeedFromContainersLeaveAtLeastOre { get; } = BindEx(cfg, 1,
     "Minimum amount of ore to leave in a container");
+  public ConfigEntry<int> FeedFromContainersLeaveAtLeastFermentable { get; } = BindEx(cfg, 0,
+    "Minimum amount of fermentable items (e.g. mead bases) to leave in a container");
   public ConfigEntry<ConfigArray<string>> FeedFromContainersExcludeOre { get; } = BindEx(cfg, ConfigArray<string>.Empty, """
     Names of ore items (prefab names, e.g. FineWood) which will not be fed to smelters from containers.
     Only affects automatic feeding, players can still add these items by hand.
@@ -38,6 +44,8 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     """);
   public ConfigEntry<MessageTypes> OreOrFuelAddedMessageType { get; } = BindEx(cfg, MessageTypes.None,
     "Type of message to show when ore or fuel is added to a smelter", AcceptableEnum<MessageTypes>.Default);
+  public ConfigEntry<MessageTypes> FermenterExtractedMessageType { get; } = BindEx(cfg, MessageTypes.None,
+    "Type of message to show when a finished product is moved from a fermenter into a container", AcceptableEnum<MessageTypes>.Default);
   public ConfigEntry<float> CapacityMultiplier { get; } = BindEx(cfg, 1f,
     "Multiply a smelter's ore/fuel capacity by this factor");
   public ConfigEntry<float> TimePerProductMultiplier { get; } = BindEx(cfg, 1f,
@@ -51,5 +59,7 @@ public sealed class Config(ConfigFile cfg, Logger logger) : ConfigBase<Config>(c
     public string FormatFuelAdded(string smelterName, string itemName, int stack) => string.Format(FuelAdded, smelterName, itemName, stack);
     string OreAdded { get; init; } = "{0}: $msg_added {1} {2}x";
     public string FormatOreAdded(string smelterName, string itemName, int stack) => string.Format(OreAdded, smelterName, itemName, stack);
+    string ProductExtracted { get; init; } = "{0}: {1} {2}x";
+    public string FormatProductExtracted(string fermenterName, string itemName, int stack) => string.Format(ProductExtracted, fermenterName, itemName, stack);
   }
 }
