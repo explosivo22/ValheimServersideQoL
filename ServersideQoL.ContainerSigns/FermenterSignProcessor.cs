@@ -1,4 +1,5 @@
 ﻿using ServersideQoL.Utilities;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace ServersideQoL.ContainerSigns;
@@ -44,6 +45,8 @@ public sealed class FermenterSignProcessor : Processor<FermenterSignProcessor.Pr
   const float UpdateInterval = 5f;
 
   readonly Dictionary<ServersideQoLZDO, ServersideQoLZDO> _signsByFermenters = [];
+  /// <see cref="Signs.SignProcessor"/>
+  readonly Regex _defaultColorRegex = new(@"^<color=[^>]+ d>");
 
   protected override void Initialize()
   {
@@ -51,6 +54,8 @@ public sealed class FermenterSignProcessor : Processor<FermenterSignProcessor.Pr
       sign.Destroy();
     _signsByFermenters.Clear();
   }
+
+  protected override bool ClaimExclusive(ServersideQoLZDO zdo) => false; // let other processors process the signs (e.g. the default sign color)
 
   protected override ProcessResult Process(ServersideQoLZDO zdo, IReadOnlyList<Peer> peers, PrefabInfo prefabInfo)
   {
@@ -104,7 +109,11 @@ public sealed class FermenterSignProcessor : Processor<FermenterSignProcessor.Pr
       }
     }
 
-    if (sign.Vars.GetText() != text)
+    var signText = sign.Vars.GetText();
+    if (_defaultColorRegex.Match(signText) is { Success: true } color)
+      text = $"{color.Value}{text}"; // keep the default color applied by the Signs mod instead of overwriting it every update
+
+    if (signText != text)
       sign.Vars.SetText(text);
 
     return result;
