@@ -1,4 +1,6 @@
-### v2.0.14
+### v2.0.15
+- Added support for option `AutoPickupRangeSignPrefix` in AutoStore and `FeedFromContainersRangeSignPrefix` in AutoProcess [#270](https://github.com/ArgusMagnus/ValheimServersideQoL/issues/270) 
+- Fixed issue with range config emoji ↔️ on some platforms [#273](https://github.com/ArgusMagnus/ValheimServersideQoL/pull/273) (contributed by [Lempac](https://github.com/Lempac))
 - Added option `FermenterSigns` to automatically put a sign on fermenters showing their content and remaining fermentation time
 
 ### v2.0.11
