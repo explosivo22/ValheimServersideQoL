@@ -76,7 +76,7 @@ public sealed class FermenterProcessor : Processor<FermenterProcessor.PrefabInfo
           if (containerZdo.Vars.GetInUse()) // || !CheckMinDistance(peers, containerZdo))
             continue; // in use or player to close
 
-          var feedRangeSqr = containerState.FeedRange ?? Config.Instance.FeedFromContainersRange.Value;
+          var feedRangeSqr = containerState.AutoProcessFeedRange ?? Config.Instance.FeedFromContainersRange.Value;
           feedRangeSqr *= feedRangeSqr;
           if (feedRangeSqr is 0f || Utils.DistanceSqr(zdo.ZDO.GetPosition(), containerZdo.ZDO.GetPosition()) > feedRangeSqr)
             continue;
@@ -188,7 +188,7 @@ public sealed class FermenterProcessor : Processor<FermenterProcessor.PrefabInfo
           if (containerZdo.Vars.GetInUse()) // || !CheckMinDistance(peers, containerZdo))
             continue; // in use or player to close
 
-          var feedRangeSqr = containerState.FeedRange ?? Config.Instance.FeedFromContainersRange.Value;
+          var feedRangeSqr = containerState.AutoProcessFeedRange ?? Config.Instance.FeedFromContainersRange.Value;
           feedRangeSqr *= feedRangeSqr;
           if (feedRangeSqr is 0f || Utils.DistanceSqr(zdo.ZDO.GetPosition(), containerZdo.ZDO.GetPosition()) > feedRangeSqr)
             continue;
@@ -283,7 +283,7 @@ public sealed class FermenterProcessor : Processor<FermenterProcessor.PrefabInfo
     if (_fermenters is null)
       throw new Exception("bug");
 
-    var feedRangeSqr = state.FeedRange ?? Config.Instance.FeedFromContainersRange.Value;
+    var feedRangeSqr = state.AutoProcessFeedRange ?? Config.Instance.FeedFromContainersRange.Value;
     feedRangeSqr *= feedRangeSqr;
     if (feedRangeSqr is 0f)
       return;
