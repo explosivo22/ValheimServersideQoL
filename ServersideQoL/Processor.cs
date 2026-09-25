@@ -1,4 +1,5 @@
-﻿using ServersideQoL.Utilities;
+﻿using Mono.Cecil.Cil;
+using ServersideQoL.Utilities;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -127,7 +128,7 @@ public abstract class Processor
     __enableProcessingTimeMonitoring = Config.Instance.DiagnosticLogs.Value;
     __dataZDO = null;
 
-    foreach (var zdo in ZDOMan.instance.GetObjects().Select(static x => x.ServersideQoLZDO))
+    foreach (var zdo in ZDOMan.instance.m_objectsByID.Values.Select(static x => x.ServersideQoLZDO))
     {
       if (!zdo.IsModCreator(out var marker))
       {
@@ -158,8 +159,12 @@ public abstract class Processor
         {
           processor.PlacedObjects.Add(zdo);
           zdo.Destroyed += processor.OnPlacedObjectDestroyed;
-          if (processor.ClaimExclusive(zdo) && !zdo.Processors.Contains(processor))
-            zdo.UnregisterAll();
+          if (processor.ClaimExclusive(zdo))
+          {
+            zdo.ExclusivityCheckDone = true;
+            zdo.ExclusivelyClaimedBy = processor;
+            zdo.UnregisterAllExcept(processor);
+          }
         }
       }
     }
@@ -352,8 +357,12 @@ public abstract class Processor
     PlacedObjects.Add(zdo);
     zdo.Destroyed += OnPlacedObjectDestroyed;
 
-    if (ClaimExclusive(zdo) && !zdo.Processors.Contains(this))
-      zdo.UnregisterAll();
+    if (ClaimExclusive(zdo))
+    {
+      zdo.ExclusivityCheckDone = true;
+      zdo.ExclusivelyClaimedBy = this;
+      zdo.UnregisterAllExcept(this);
+    }
     return zdo;
   }
 
