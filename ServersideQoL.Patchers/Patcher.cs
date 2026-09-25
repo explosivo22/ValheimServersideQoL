@@ -29,7 +29,7 @@ static class Patcher
       var module = assembly.MainModule;
       var typeToExtend = module.GetType(typeToExtendName) ?? throw new Exception($"Type {typeToExtendName} not found");
 
-      var serversideQoLRef = new AssemblyNameReference(PatchersPlugin.PluginName.Replace(".Patchers", ""), new(PatchersPlugin.PluginVersion));
+      var serversideQoLRef = new AssemblyNameReference(PatchersPlugin.PluginName.Replace(".Patchers", ""), new(PatchersPlugin.PluginVersion.Split('-')[0]));
       module.AssemblyReferences.Add(serversideQoLRef);
 
       var propertyType = module.ImportReference(new TypeReference(propertyTypeNamespace, propertyTypeName, module, serversideQoLRef));
@@ -93,6 +93,40 @@ static class Patcher
     }
 
 #if DEBUG
+    static void MakePublic(AssemblyDefinition assembly, string typeName, IEnumerable<string>? fields = null, IEnumerable<string>? methods = null)
+    {
+      var module = assembly.MainModule;
+      var type = module.GetType(typeName) ?? throw new Exception($"Type {typeName} not found");
+      foreach (var fieldName in fields ?? [])
+      {
+        var field = type.Fields.FirstOrDefault(x => x.Name == fieldName) ?? throw new Exception($"Field {typeName}.{fieldName} not found");
+        field.IsPublic = true;
+      }
+      foreach (var methodName in methods ?? [])
+      {
+        var method = type.Methods.FirstOrDefault(x => x.Name == methodName) ?? throw new Exception($"Field {typeName}.{methodName} not found");
+        method.IsPublic = true;
+      }
+    }
+
+    using var ms = new MemoryStream();
+    assembly.Write(ms);
+
+    // only patch copy copy
+    ms.Seek(0, SeekOrigin.Begin);
+    assembly = AssemblyDefinition.ReadAssembly(ms);
+
+    MakePublic(assembly, "Character", fields: ["s_encumbered", "s_inWater"]);
+    MakePublic(assembly, "Container", methods: ["CheckForChanges"]);
+    //MakePublic(assembly, "Localization", fields: ["m_translations"]);
+    MakePublic(assembly, "Player", fields: ["s_crouching"]);
+    MakePublic(assembly, "RandEventSystem", fields: ["m_randomEvent"]);
+    MakePublic(assembly, "ZDOMan", fields: ["m_objectsByID"]);
+    MakePublic(assembly, "ZoneSystem",
+      fields: ["m_locationsByHash"],
+      methods: ["SendGlobalKeys", "GlobalKeyAdd", "GlobalKeyRemove", "SpawnLocation"]);
+    MakePublic(assembly, "ZSyncAnimation", fields: ["c_ZDOSalt"]);
+
     Directory.CreateDirectory(PatchersPlugin.DependencyDirectory);
     assembly.Write(Path.Combine(PatchersPlugin.DependencyDirectory, AssemblyName));
 #endif

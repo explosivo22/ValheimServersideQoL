@@ -28,6 +28,7 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
       Processors = value?.EnabledProcessors ?? [];
       HasProcessors = Processors.Count is not 0;
       ExclusivityCheckDone = false;
+      ExclusivelyClaimedBy = default;
       _hasFields = default;
       ComponentFieldAccessors = default;
       ScheduleBefore = float.NaN;
@@ -65,6 +66,7 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
   internal bool HasProcessors { get; private set; }
   internal IReadOnlyList<Processor> Processors { get; private set; } = [];
   internal bool ExclusivityCheckDone { get; set; }
+  internal Processor? ExclusivelyClaimedBy { get; set; }
   bool? _hasFields;
   static readonly int __hasFieldsHash = ZNetView.CustomFieldsStr.GetStableHashCode();
   public bool HasFields => _hasFields ??= ZDO.GetBool(__hasFieldsHash);
@@ -233,6 +235,9 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
 
   public void ReregisterAll()
   {
+    if (ExclusivityCheckDone && ExclusivelyClaimedBy is not null)
+      return;
+
     Processors = PrefabInfo?.EnabledProcessors ?? [];
     HasProcessors = Processors.Count is not 0;
     ExclusivityCheckDone = false;
@@ -279,6 +284,7 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
       zdo.ServersideQoLZDO.Processors = Processors;
       zdo.ServersideQoLZDO.HasProcessors = HasProcessors;
       zdo.ServersideQoLZDO.ExclusivityCheckDone = ExclusivityCheckDone;
+      zdo.ServersideQoLZDO.ExclusivelyClaimedBy = ExclusivelyClaimedBy;
     }
     if (cloneDestroyedHandler)
       zdo.ServersideQoLZDO._destroyed = _destroyed;
@@ -299,6 +305,7 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
     return zdo;
   }
 
+  [Obsolete(null, true)]
   public TimeSpan GetTimeSinceSpawned() => ZNet.instance.GetTime() - Vars.GetSpawnTime();
 
   public void ClaimOwnership() => ZDO.SetOwner(ZDOMan.GetSessionID());
@@ -306,7 +313,22 @@ public sealed partial class ServersideQoLZDO(ZDO zdo) : IEquatable<ServersideQoL
   public void ReleaseOwnership() => ZDO.SetOwner(0);
   public void ReleaseOwnershipInternal() => ZDO.SetOwnerInternal(0);
 
-  public bool IsOwnerOrUnassigned() => !ZDO.HasOwner() || ZDO.IsOwner() || ZDO.GetOwner() == PlayerID.GetModPlayerID().Value;
+  public bool IsOwnerOrUnassigned()
+  {
+    if (!ZDO.HasOwner() || ZDO.IsOwner())
+      return true;
+    var owner = ZDO.GetOwner();
+    if (owner == PlayerID.GetModPlayerID().Value)
+      return true;
+    
+    if (ZNet.instance.GetPeer(owner)?.ServersideQoLPeer is not { } peer || !ZNetScene.InActiveArea(ZDO.GetPosition(), peer.RefPos))
+    {
+      ReleaseOwnershipInternal();
+      return true;
+    }
+
+    return false;
+  }
 
   public void SetModAsCreator() => SetModAsCreator(Processor.CreatorMarkers.None);
   public void SetModAsCreator(Processor.CreatorMarkers marker) => Vars.SetCreator(PlayerID.GetModPlayerID((uint)marker));
