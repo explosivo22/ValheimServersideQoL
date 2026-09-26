@@ -1,1 +1,1 @@
-- Automatically extracts honey, feathers and sap from beehives, bird nests and sap collectors into nearby containers
+- Automatically extracts honey, feathers and sap from beehives, bird nests and sap collectors like extracting by hand, so AutoStore can put them into containers

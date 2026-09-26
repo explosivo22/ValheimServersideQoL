@@ -107,6 +107,16 @@ public static class RPC
     {
       public static RpcName SpawnObject { get; } = new("RPC_SpawnObject");
     }
+
+    public static class Beehive
+    {
+      public static RpcName Extract { get; } = new("RPC_Extract");
+    }
+
+    public static class SapCollector
+    {
+      public static RpcName Extract { get; } = new("RPC_Extract");
+    }
   }
 
   public static void ShowMessage(long targetPeerId, MessageHud.MessageType type, string message)

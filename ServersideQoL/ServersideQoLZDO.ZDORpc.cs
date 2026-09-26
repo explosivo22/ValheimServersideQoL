@@ -143,6 +143,26 @@ partial class ServersideQoLZDO
         => InvokeRoutedRPC(_zdo.GetOwner(), _zdo.m_uid, RpcName.MineRock5.Damage, parameters: [hit, hitAreaIndex]);
     }
 
+    public BeehiveRpc Beehive => new(_zdo);
+    public readonly ref struct BeehiveRpc(ServersideQoLZDO zdo)
+    {
+      readonly ZDO _zdo = AssertAndGetZDO<Beehive>(zdo);
+
+      /// <see cref="Beehive.RPC_Extract"/>
+      public void Extract()
+        => InvokeRoutedRPC(_zdo.GetOwner(), _zdo.m_uid, RpcName.Beehive.Extract);
+    }
+
+    public SapCollectorRpc SapCollector => new(_zdo);
+    public readonly ref struct SapCollectorRpc(ServersideQoLZDO zdo)
+    {
+      readonly ZDO _zdo = AssertAndGetZDO<SapCollector>(zdo);
+
+      /// <see cref="SapCollector.RPC_Extract"/>
+      public void Extract()
+        => InvokeRoutedRPC(_zdo.GetOwner(), _zdo.m_uid, RpcName.SapCollector.Extract);
+    }
+
     static ZDO AssertAndGetZDO<T>(ServersideQoLZDO zdo)
       where T : MonoBehaviour
     {
