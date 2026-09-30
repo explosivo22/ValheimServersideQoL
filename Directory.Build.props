@@ -39,7 +39,7 @@
 
     <None Include="$(MSBuildProjectDirectory)\icon.png" CopyToOutputDirectory="Always" />
     <None Include="$(MSBuildProjectDirectory)\FEATURES.md" CopyToOutputDirectory="Always" />
-    <None Include="$(MSBuildProjectDirectory)\CONFIG.md" CopyToOutputDirectory="Always" />
+    <None Include="$(MSBuildProjectDirectory)\CONFIG.md" CopyToOutputDirectory="Always" Condition="Exists('$(MSBuildProjectDirectory)\CONFIG.md')" />
     <None Include="$(MSBuildProjectDirectory)\CHANGELOG.md" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
